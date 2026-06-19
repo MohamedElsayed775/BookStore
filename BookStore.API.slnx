@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
   <Project Path="BookStore.API/BookStore.API.csproj" />
   <Project Path="BookStore.Data/BookStore.Data.csproj" />
   <Project Path="BookStore.Model/BookStore.Model.csproj" />
