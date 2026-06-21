@@ -1,4 +1,5 @@
-﻿using BookStore.Model;
+﻿using BookStore.DTO;
+using BookStore.Model;
 using BookStore.Repository;
 using BookStore.UnitOfWork;
 using Microsoft.AspNetCore.Http;
@@ -22,15 +23,24 @@ namespace BookStore.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
+                   
             List<Book> books = (await BookRepo.GetAllAsync()).ToList();
+
             return Ok(books);
         }
 
         [HttpPost]
-        public async Task<IActionResult> add(Book book)
+        public async Task<IActionResult> add(CreateBookDTO createBookDTO)
         {
             if (ModelState.IsValid)
             {
+                Book book = new Book
+                {
+                    Title = createBookDTO.Title,
+                    AuthorName = createBookDTO.AuthorName,
+                    Price = createBookDTO.Price,
+                    Quantity = createBookDTO.Quantity
+                };
                 await BookRepo.Add(book);
                 UnitOfWork.SaveAndCommit();
                 return Ok("Book Created Successfully");
