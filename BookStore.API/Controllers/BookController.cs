@@ -23,10 +23,21 @@ namespace BookStore.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
-                   
+            
             List<Book> books = (await BookRepo.GetAllAsync()).ToList();
-
-            return Ok(books);
+            List<GetBookDTO> getBookDTOs = new List<GetBookDTO>();
+            foreach (var book in books)
+            {
+                getBookDTOs.Add(new GetBookDTO
+                {
+                    Title = book.Title,
+                    AuthorName = book.AuthorName,
+                    Price = book.Price,
+                    Quantity = book.Quantity,
+                    CreatedOn = book.CreatedOn
+                });
+            }
+            return Ok(getBookDTOs);
         }
 
         [HttpPost]
