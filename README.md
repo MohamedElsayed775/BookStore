@@ -10,18 +10,21 @@ A RESTful Web API for managing books and orders.
 - Unit Of Work Pattern
 
 ## Features
-- Manage Books (CRUD)
-- Manage Orders
+- CRUD Operations for Books
+- DTO Pattern for Data Transfer
+- Soft Delete Support
+- Pagination
 - Database Migrations
 - Clean Architecture Structure
 
 ## Project Structure
 
-- BookStore.API
-- BookStore.Data
-- BookStore.Model
-- BookStore.Repository
-- BookStore.UnitOfWork
+- BookStore.API → API Endpoints & Controllers
+- BookStore.Data → DbContext & Database Configuration
+- BookStore.Model → Domain Entities
+- BookStore.DTO → Data Transfer Objects (CreateBookDTO, BookDTO)
+- BookStore.Repository → Repository Implementations
+- BookStore.UnitOfWork → Unit Of Work Implementation
 
 ## Getting Started
 
