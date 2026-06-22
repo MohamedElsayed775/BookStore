@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.Eventing.Reader;
-using BookStore.DTO;
+using BookStore.DTO.BookDTO;
 using BookStore.Model;
 using BookStore.Repository;
 using BookStore.UnitOfWork;
