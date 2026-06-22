@@ -11,7 +11,7 @@ namespace BookStore.Model
         public string Title { get; set; }
         public int Price { get; set; }
         public string AuthorName { get; set; }
-        public int Quantity { get; set; }
+        public int Quantity { get; set; }  //stock quantity
 
         public List<OrderItems>? OrderItems { get; set; }
 

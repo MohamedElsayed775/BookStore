@@ -9,6 +9,9 @@ namespace BookStore.Model
 {
     public class OrderItems : BaseModel
     {
+        public int Quantity { get; set; }   //quantity of the book in the order
+
+
         [ForeignKey("Book")]
         public int BookId { get; set; }
 
