@@ -24,13 +24,13 @@ namespace BookStore.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllBooks()
         {
-
             List<Book> books = (await BookRepo.GetAllAsync()).ToList();
             List<GetBookDTO> getBookDTOs = new List<GetBookDTO>();
             foreach (var book in books)
             {
                 getBookDTOs.Add(new GetBookDTO
                 {
+                    Id = book.Id,
                     Title = book.Title,
                     AuthorName = book.AuthorName,
                     Price = book.Price,
@@ -40,8 +40,6 @@ namespace BookStore.API.Controllers
             }
             return Ok(getBookDTOs);
         }
-
-
 
         [HttpGet("{id:int}")]
         public IActionResult GetById (int id)
@@ -56,6 +54,7 @@ namespace BookStore.API.Controllers
             {
                 GetBookDTO getBookDTO = new GetBookDTO
                 {
+                    Id = book.Id,
                     Title = book.Title,
                     AuthorName = book.AuthorName,
                     Price = book.Price,

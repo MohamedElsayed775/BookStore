@@ -6,12 +6,9 @@ using System.Threading.Tasks;
 
 namespace BookStore.DTO.BookDTO
 {
-    public class GetBookDTO
+    public class GetBookDTO : BaseBookDTO
     {
-        public string Title { get; set; }
-        public string AuthorName { get; set; }
-        public int Price { get; set; }
-        public int Quantity { get; set; }
+        public int Id { get; set; }
         public DateTime CreatedOn { get; set; } 
     }
 }
