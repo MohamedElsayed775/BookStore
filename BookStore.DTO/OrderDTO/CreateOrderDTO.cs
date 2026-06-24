@@ -7,10 +7,9 @@ using BookStore.Model;
 
 namespace BookStore.DTO.OrderDTO
 {
-    public class CreateOrderDTO
+    public class CreateOrderDTO : BaseOrderDTO
     {
-        public string CustomerName { get; set; }
-        public List<CreateOrderItemDTO>  createsDTO { get; set; } = new List<CreateOrderItemDTO>();
+    
 
     }
 }

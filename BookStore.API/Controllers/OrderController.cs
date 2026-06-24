@@ -15,7 +15,7 @@ namespace BookStore.API.Controllers
         private readonly IRepository<Book> BookRepo;
         private readonly UnitOfWorks UnitOfWork;
 
-        public OrderController(IRepository<Order> _orderRepo, IRepository<Book> _bookRepo , UnitOfWorks _unitOfWork )
+        public OrderController(IRepository<Order> _orderRepo, IRepository<Book> _bookRepo, UnitOfWorks _unitOfWork)
         {
             OrderRepo = _orderRepo;
             BookRepo = _bookRepo;
@@ -25,25 +25,31 @@ namespace BookStore.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrdersAsync()
         {
-            // include Book navigation so item.Book is populated
             List<Order> orders = (await OrderRepo.GetAllAsync(Include: "OrderItems.Book")).ToList();
-            List<GetOrderDTO> getOrderDTOs = new List<GetOrderDTO>();
-            foreach (var order in orders)
+            if (orders == null || orders.Count == 0)
             {
-                GetOrderDTO getOrderDTO = new GetOrderDTO()
-                {
-                    CustomerName = order.CustomerName,
-                    TotalPrice = order.TotalPrice,
-                    createsDTO = order.OrderItems.Select(item => new CreateOrderItemDTO
-                    {
-                        BookTitle = item.Book?.Title ?? "Unknown",
-                        Quantity = item.Quantity
-                    }).ToList()
-                };
-                getOrderDTOs.Add(getOrderDTO);
+                return NotFound("No orders found");
             }
+            else
+            {
+                List<GetOrderDTO> getOrderDTOs = new List<GetOrderDTO>();
+                foreach (var order in orders)
+                {
+                    GetOrderDTO getOrderDTO = new GetOrderDTO()
+                    {
+                        CustomerName = order.CustomerName,
+                        TotalPrice = order.TotalPrice,
+                        createsDTO = order.OrderItems.Select(item => new CreateOrderItemDTO
+                        {
+                            BookTitle = item.Book?.Title ?? "Unknown",
+                            Quantity = item.Quantity
+                        }).ToList()
+                    };
+                    getOrderDTOs.Add(getOrderDTO);
+                }
 
-            return Ok(getOrderDTOs);
+                return Ok(getOrderDTOs);
+            }
         }
 
         [HttpPost]

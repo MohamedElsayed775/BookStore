@@ -9,6 +9,6 @@ namespace BookStore.DTO.OrderDTO
     public class CreateOrderItemDTO
     {
         public string BookTitle { get; set; }
-        public int Quantity { get; set; }
+        public int Quantity { get; set; } //quantity of the book in the order
     }
 }
