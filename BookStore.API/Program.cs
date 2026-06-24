@@ -21,6 +21,7 @@ namespace BookStore.API
              .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
                 );
             builder.Services.AddScoped<IRepository<Book>, Repository<Book>>();
+            builder.Services.AddScoped<IRepository<Order>, Repository<Order>>();
             builder.Services.AddScoped<UnitOfWorks, UnitOfWorks>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
