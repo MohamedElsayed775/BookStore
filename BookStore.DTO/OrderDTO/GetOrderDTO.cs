@@ -9,6 +9,7 @@ namespace BookStore.DTO.OrderDTO
 {
     public class GetOrderDTO : BaseOrderDTO
     {
+        public int Id { get; set; }
         public int TotalPrice { get; set; }  
     }
 }

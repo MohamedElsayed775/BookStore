@@ -37,6 +37,7 @@ namespace BookStore.API.Controllers
                 {
                     GetOrderDTO getOrderDTO = new GetOrderDTO()
                     {
+                        Id = order.Id,
                         CustomerName = order.CustomerName,
                         TotalPrice = order.TotalPrice,
                         createsDTO = order.OrderItems.Select(item => new CreateOrderItemDTO
@@ -49,6 +50,33 @@ namespace BookStore.API.Controllers
                 }
 
                 return Ok(getOrderDTOs);
+            }
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetOrederById(int id)
+        {
+
+            Order order = await OrderRepo.Get(o => o.Id == id, Include: "OrderItems.Book");
+
+            if (order == null)
+            {
+                return NotFound("Order not found");
+            }
+            else
+            {
+                GetOrderDTO getOrderDTO = new GetOrderDTO()
+                {
+                    Id = order.Id,
+                    CustomerName = order.CustomerName,
+                    TotalPrice = order.TotalPrice,
+                    createsDTO = order.OrderItems.Select(item => new CreateOrderItemDTO
+                    {
+                        BookTitle = item.Book?.Title ?? "Unknown",
+                        Quantity = item.Quantity
+                    }).ToList()
+                };
+                return Ok(getOrderDTO);
             }
         }
 
