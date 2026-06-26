@@ -101,7 +101,6 @@ namespace BookStore.API.Controllers
                 order.OrderItems.Add(new OrderItems
                 {
                     BookId = book.Id,
-                    OrderId = order.Id,
                     Quantity = item.Quantity
                 });
 
@@ -123,6 +122,63 @@ namespace BookStore.API.Controllers
             return Ok(getOrderDTO);
         }
 
+        [HttpPut]
+        public async Task<IActionResult> UpdateOrder(int id, UpdateOrderDTO updateOrderDTO)
+        {
+            if (ModelState.IsValid)
+            {
+                Order order = await OrderRepo.Get(o => o.Id == id, Include: "OrderItems.Book");
+                if (order == null)
+                {
+                    return NotFound($"Order with Id {id} not found");
+                }
+                else
+                {
+                    order.CustomerName = updateOrderDTO.CustomerName;
+                    order.OrderItems.Clear();
+                    int totalPrice = 0;
+                    foreach (var item in updateOrderDTO.createsDTO)
+                    {
+                        var book = await BookRepo.Get(b => b.Title == item.BookTitle);
+                        if (book == null)
+                            return NotFound($"Book with Title {item.BookTitle} not found");
+
+                        order.OrderItems.Add(new OrderItems
+                        {
+                            BookId = book.Id,
+                            Quantity = item.Quantity
+
+                        });
+                        totalPrice += book.Price * item.Quantity;
+                    }
+                    order.TotalPrice = totalPrice;
+                    OrderRepo.Update(order);
+                    UnitOfWork.SaveAndCommit();
+                    return Ok();
+                }
+            }
+            else
+            {
+                return BadRequest(ModelState);
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            Order order = await OrderRepo.Get(o => o.Id == id);
+            if (order == null)
+            {
+                return NotFound($"Order with Id {id} not found");
+            }
+            if (ModelState.IsValid)
+            {
+                await OrderRepo.Delete(id);
+                UnitOfWork.SaveAndCommit();
+                return Ok("Order Deleted Successfully");
+            }
+            return BadRequest(ModelState);
+        }
     }
 }
 

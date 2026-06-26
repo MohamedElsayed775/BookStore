@@ -115,6 +115,11 @@ namespace BookStore.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
+            Book book = await BookRepo.Get(o => o.Id == id);
+            if (book == null)
+            {
+                return NotFound($"Book with Id {id} not found");
+            }
             if (ModelState.IsValid)
             {
                 await BookRepo.Delete(id);
