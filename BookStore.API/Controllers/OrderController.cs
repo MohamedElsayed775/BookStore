@@ -14,12 +14,14 @@ namespace BookStore.API.Controllers
         private readonly IRepository<Order> OrderRepo;
         private readonly IRepository<Book> BookRepo;
         private readonly UnitOfWorks UnitOfWork;
+        private readonly IRepository<OrderItems> OrderItemRepo;
 
-        public OrderController(IRepository<Order> _orderRepo, IRepository<Book> _bookRepo, UnitOfWorks _unitOfWork)
+        public OrderController(IRepository<Order> _orderRepo, IRepository<Book> _bookRepo, UnitOfWorks _unitOfWork, IRepository<OrderItems> _orderItemRepo)
         {
             OrderRepo = _orderRepo;
             BookRepo = _bookRepo;
             UnitOfWork = _unitOfWork;
+            OrderItemRepo = _orderItemRepo;
         }
 
         [HttpGet]
@@ -122,7 +124,7 @@ namespace BookStore.API.Controllers
             return Ok(getOrderDTO);
         }
 
-        [HttpPut]
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateOrder(int id, UpdateOrderDTO updateOrderDTO)
         {
             if (ModelState.IsValid)
@@ -135,7 +137,16 @@ namespace BookStore.API.Controllers
                 else
                 {
                     order.CustomerName = updateOrderDTO.CustomerName;
-                    order.OrderItems.Clear();
+                    // Do not mark the whole order as deleted. Only soft-delete existing order items
+                    if (order.OrderItems != null)
+                    {
+                        foreach (var existingItem in order.OrderItems.ToList())
+                        {
+                            OrderItemRepo.Remove(existingItem);
+                        }
+                        // replace with a fresh list to add new items
+                        order.OrderItems = new List<OrderItems>();
+                    }
                     int totalPrice = 0;
                     foreach (var item in updateOrderDTO.createsDTO)
                     {

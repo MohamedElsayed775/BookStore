@@ -15,5 +15,7 @@ namespace BookStore.Repository
         Task Add(T item);
         void Update(T item);
         Task Delete(int id);
+        void Remove(T item);
+
     }
 }

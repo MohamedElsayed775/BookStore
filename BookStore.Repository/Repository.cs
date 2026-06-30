@@ -22,7 +22,7 @@ namespace BookStore.Repository
         public async Task<IEnumerable<T>> GetAllAsync(string Include = "", int pageNumber = 1, int pageSize = 10)
         {
             int NoOfSkip = (pageNumber - 1) * pageSize;
-            var query = Set.Where(o => o.IsDeleted == false);
+            var query = Set.AsNoTracking().Where(o => o.IsDeleted == false);
 
             if (Include == "")
                 return await query.Skip(NoOfSkip).Take(pageSize).ToListAsync();
@@ -39,20 +39,21 @@ namespace BookStore.Repository
         }
         public async Task Add(T item)
         {
-            Set.Attach(item);
             await Set.AddAsync(item);
         }
         public void Update(T item)
         {
-            Set.Attach(item);
             Set.Update(item);
         }
         public async Task Delete(int id)
         {
             T obj = await Get(o => o.Id == id);
-            Set.Attach(obj);
             obj.IsDeleted = true;
         }
-     
+        public void Remove(T entity)
+        {
+            Set.Remove(entity);
+        }
+
     }
 }

@@ -17,11 +17,11 @@ namespace BookStore.API
 
             builder.Services.AddControllers();
             builder.Services.AddDbContext<BookStoreContext>(
-             option => option.UseSqlServer(builder.Configuration.GetConnectionString("cs"))
-             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
-                );
+             option => option.UseSqlServer(builder.Configuration.GetConnectionString("cs")));
             builder.Services.AddScoped<IRepository<Book>, Repository<Book>>();
             builder.Services.AddScoped<IRepository<Order>, Repository<Order>>();
+            builder.Services.AddScoped<IRepository<OrderItems>, Repository<OrderItems>>();
+
             builder.Services.AddScoped<UnitOfWorks, UnitOfWorks>();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

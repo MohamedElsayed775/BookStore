@@ -66,7 +66,7 @@ namespace BookStore.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> add(CreateBookDTO createBookDTO)
+        public async Task<IActionResult> AddBook(CreateBookDTO createBookDTO)
         {
             if (ModelState.IsValid)
             {
@@ -85,7 +85,7 @@ namespace BookStore.API.Controllers
         }
 
         [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, UpdateBookDTO updateBookDTO)
+        public async Task<IActionResult> UpdateBook(int id, UpdateBookDTO updateBookDTO)
         {
             if (ModelState.IsValid)
             {
@@ -109,7 +109,6 @@ namespace BookStore.API.Controllers
             {
                 return BadRequest(ModelState);
             }
-
         }
 
         [HttpDelete("{id:int}")]
