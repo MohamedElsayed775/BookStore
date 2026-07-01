@@ -99,13 +99,15 @@ namespace BookStore.API.Controllers
 
                 if (book == null)
                     return NotFound($"Book with Title {item.BookTitle} not found");
-
+               
+                if (item.Quantity > book.Quantity)
+                    return BadRequest($"Quantity for book {item.BookTitle} exceeds available stock");
                 order.OrderItems.Add(new OrderItems
                 {
                     BookId = book.Id,
                     Quantity = item.Quantity
                 });
-
+                book.Quantity -= item.Quantity; // Reduce the quantity of the book in stock
                 totalPrice += book.Price * item.Quantity;
             }
 
@@ -134,44 +136,39 @@ namespace BookStore.API.Controllers
                 {
                     return NotFound($"Order with Id {id} not found");
                 }
-                else
+
+                order.CustomerName = updateOrderDTO.CustomerName;
+                if (order.OrderItems != null)
                 {
-                    order.CustomerName = updateOrderDTO.CustomerName;
-                    // Do not mark the whole order as deleted. Only soft-delete existing order items
-                    if (order.OrderItems != null)
+                    foreach (var existingItem in order.OrderItems.ToList())
                     {
-                        foreach (var existingItem in order.OrderItems.ToList())
-                        {
-                            OrderItemRepo.Remove(existingItem);
-                        }
-                        // replace with a fresh list to add new items
-                        order.OrderItems = new List<OrderItems>();
+                        existingItem.Book.Quantity += existingItem.Quantity; 
+                        OrderItemRepo.Remove(existingItem);
                     }
-                    int totalPrice = 0;
-                    foreach (var item in updateOrderDTO.createsDTO)
-                    {
-                        var book = await BookRepo.Get(b => b.Title == item.BookTitle);
-                        if (book == null)
-                            return NotFound($"Book with Title {item.BookTitle} not found");
-
-                        order.OrderItems.Add(new OrderItems
-                        {
-                            BookId = book.Id,
-                            Quantity = item.Quantity
-
-                        });
-                        totalPrice += book.Price * item.Quantity;
-                    }
-                    order.TotalPrice = totalPrice;
-                    OrderRepo.Update(order);
-                    UnitOfWork.SaveAndCommit();
-                    return Ok();
+                    order.OrderItems = new List<OrderItems>();
                 }
+                int totalPrice = 0;
+                foreach (var item in updateOrderDTO.createsDTO)
+                {
+                    var book = await BookRepo.Get(b => b.Title == item.BookTitle);
+                    if (book == null)
+                        return NotFound($"Book with Title {item.BookTitle} not found");
+                    if (item.Quantity > book.Quantity)
+                        return BadRequest($"Quantity for book {item.BookTitle} exceeds available stock");
+                    order.OrderItems.Add(new OrderItems
+                    {
+                        BookId = book.Id,
+                        Quantity = item.Quantity
+                    });
+                    book.Quantity -= item.Quantity; // Reduce the quantity of the book in stock
+                    totalPrice += book.Price * item.Quantity;
+                }
+                order.TotalPrice = totalPrice;
+                OrderRepo.Update(order);
+                UnitOfWork.SaveAndCommit();
+                return Ok();
             }
-            else
-            {
-                return BadRequest(ModelState);
-            }
+            return BadRequest(ModelState);
         }
 
         [HttpDelete("{id:int}")]
