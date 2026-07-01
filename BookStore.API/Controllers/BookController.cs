@@ -42,27 +42,22 @@ namespace BookStore.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public IActionResult GetById (int id)
+        public IActionResult GetById(int id)
         {
-            Book book = BookRepo.Get(o=>o.Id == id).Result;
-            if (book == null || book.IsDeleted==true)
-            {
+            Book book = BookRepo.Get(o => o.Id == id).Result;
+            if (book == null || book.IsDeleted == true)
                 return NotFound("Book Not Found");
-            }
-            
-            else
+
+            GetBookDTO getBookDTO = new GetBookDTO
             {
-                GetBookDTO getBookDTO = new GetBookDTO
-                {
-                    Id = book.Id,
-                    Title = book.Title,
-                    AuthorName = book.AuthorName,
-                    Price = book.Price,
-                    Quantity = book.Quantity,
-                    CreatedOn = book.CreatedOn
-                };
-                return Ok(getBookDTO);
-            }
+                Id = book.Id,
+                Title = book.Title,
+                AuthorName = book.AuthorName,
+                Price = book.Price,
+                Quantity = book.Quantity,
+                CreatedOn = book.CreatedOn
+            };
+            return Ok(getBookDTO);
         }
 
         [HttpPost]
@@ -91,24 +86,18 @@ namespace BookStore.API.Controllers
             {
                 Book book = await BookRepo.Get(o => o.Id == id);
                 if (book == null)
-                {
                     return NotFound("Book Not Found");
-                }
-                else
-                {
-                    book.Title = updateBookDTO.Title;
-                    book.AuthorName = updateBookDTO.AuthorName;
-                    book.Price = updateBookDTO.Price;
-                    book.Quantity = updateBookDTO.Quantity;
-                    BookRepo.Update(book);
-                    UnitOfWork.SaveAndCommit();
-                    return Ok("Book Updated Successfully");
-                }
+
+                book.Title = updateBookDTO.Title;
+                book.AuthorName = updateBookDTO.AuthorName;
+                book.Price = updateBookDTO.Price;
+                book.Quantity = updateBookDTO.Quantity;
+                BookRepo.Update(book);
+                UnitOfWork.SaveAndCommit();
+                return Ok("Book Updated Successfully");
+
             }
-            else
-            {
-                return BadRequest(ModelState);
-            }
+            return BadRequest(ModelState);
         }
 
         [HttpDelete("{id:int}")]
@@ -116,9 +105,8 @@ namespace BookStore.API.Controllers
         {
             Book book = await BookRepo.Get(o => o.Id == id);
             if (book == null)
-            {
                 return NotFound($"Book with Id {id} not found");
-            }
+
             if (ModelState.IsValid)
             {
                 await BookRepo.Delete(id);
