@@ -28,44 +28,12 @@ namespace BookStore.API.Controllers
         public async Task<IActionResult> GetAllOrdersAsync()
         {
             List<Order> orders = (await OrderRepo.GetAllAsync(Include: "OrderItems.Book")).ToList();
+
             if (orders == null || orders.Count == 0)
-            {
                 return NotFound("No orders found");
-            }
-            else
-            {
-                List<GetOrderDTO> getOrderDTOs = new List<GetOrderDTO>();
-                foreach (var order in orders)
-                {
-                    GetOrderDTO getOrderDTO = new GetOrderDTO()
-                    {
-                        Id = order.Id,
-                        CustomerName = order.CustomerName,
-                        TotalPrice = order.TotalPrice,
-                        createsDTO = order.OrderItems.Select(item => new CreateOrderItemDTO
-                        {
-                            BookTitle = item.Book?.Title ?? "Unknown",
-                            Quantity = item.Quantity
-                        }).ToList()
-                    };
-                    getOrderDTOs.Add(getOrderDTO);
-                }
 
-                return Ok(getOrderDTOs);
-            }
-        }
-
-        [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetOrederById(int id)
-        {
-
-            Order order = await OrderRepo.Get(o => o.Id == id, Include: "OrderItems.Book");
-
-            if (order == null)
-            {
-                return NotFound("Order not found");
-            }
-            else
+            List<GetOrderDTO> getOrderDTOs = new List<GetOrderDTO>();
+            foreach (var order in orders)
             {
                 GetOrderDTO getOrderDTO = new GetOrderDTO()
                 {
@@ -78,8 +46,32 @@ namespace BookStore.API.Controllers
                         Quantity = item.Quantity
                     }).ToList()
                 };
-                return Ok(getOrderDTO);
+                getOrderDTOs.Add(getOrderDTO);
             }
+            return Ok(getOrderDTOs);
+        }
+
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetOrederById(int id)
+        {
+
+            Order order = await OrderRepo.Get(o => o.Id == id, Include: "OrderItems.Book");
+
+            if (order == null)
+                return NotFound("Order not found");
+
+            GetOrderDTO getOrderDTO = new GetOrderDTO()
+            {
+                Id = order.Id,
+                CustomerName = order.CustomerName,
+                TotalPrice = order.TotalPrice,
+                createsDTO = order.OrderItems.Select(item => new CreateOrderItemDTO
+                {
+                    BookTitle = item.Book?.Title ?? "Unknown",
+                    Quantity = item.Quantity
+                }).ToList()
+            };
+            return Ok(getOrderDTO);
         }
 
         [HttpPost]
@@ -99,9 +91,10 @@ namespace BookStore.API.Controllers
 
                 if (book == null)
                     return NotFound($"Book with Title {item.BookTitle} not found");
-               
+
                 if (item.Quantity > book.Quantity)
                     return BadRequest($"Quantity for book {item.BookTitle} exceeds available stock");
+
                 order.OrderItems.Add(new OrderItems
                 {
                     BookId = book.Id,
@@ -142,7 +135,7 @@ namespace BookStore.API.Controllers
                 {
                     foreach (var existingItem in order.OrderItems.ToList())
                     {
-                        existingItem.Book.Quantity += existingItem.Quantity; 
+                        existingItem.Book.Quantity += existingItem.Quantity;
                         OrderItemRepo.Remove(existingItem);
                     }
                     order.OrderItems = new List<OrderItems>();
@@ -174,18 +167,16 @@ namespace BookStore.API.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
-            Order order = await OrderRepo.Get(o => o.Id == id);
+            Order order = await OrderRepo.Get(o => o.Id == id, Include: "OrderItems.Book");
             if (order == null)
-            {
                 return NotFound($"Order with Id {id} not found");
-            }
-            if (ModelState.IsValid)
+            foreach (var item in order.OrderItems.ToList())
             {
-                await OrderRepo.Delete(id);
-                UnitOfWork.SaveAndCommit();
-                return Ok("Order Deleted Successfully");
+                item.Book.Quantity += item.Quantity;
             }
-            return BadRequest(ModelState);
+            await OrderRepo.Delete(id);
+            UnitOfWork.SaveAndCommit();
+            return Ok("Order Deleted Successfully");
         }
     }
 }
